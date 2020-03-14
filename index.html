@@ -221,7 +221,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-11 23:31:26" itemprop="dateModified" datetime="2020-03-11T23:31:26+08:00">2020-03-11</time>
+                <time title="修改时间：2020-03-14 11:00:50" itemprop="dateModified" datetime="2020-03-14T11:00:50+08:00">2020-03-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -233,7 +233,14 @@
                 </span>
             </span>
 
-          <br>
+          
+            <span id="/2020/03/08/sky-rendering-2/" class="post-meta-item leancloud_visitors" data-flag-title="基于物理的大气散射 (二)" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-file-word-o"></i>
@@ -330,7 +337,14 @@
                 </span>
             </span>
 
-          <br>
+          
+            <span id="/2020/03/05/sky-rendering-1/" class="post-meta-item leancloud_visitors" data-flag-title="基于物理的大气散射 (一)" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-file-word-o"></i>
@@ -397,7 +411,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/01/salted-fish-turn-over-plan-md/" class="post-title-link" itemprop="url">咸鱼翻身计划</a>
+            <a href="/2020/03/01/salted-fish-turn-over-plan-md/" class="post-title-link" itemprop="url">2020年读书计划</a>
         </h1>
 
         <div class="post-meta">
@@ -415,16 +429,23 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-08 18:15:03" itemprop="dateModified" datetime="2020-03-08T18:15:03+08:00">2020-03-08</time>
+                <time title="修改时间：2020-03-14 18:22:32" itemprop="dateModified" datetime="2020-03-14T18:22:32+08:00">2020-03-14</time>
               </span>
 
-          <br>
+          
+            <span id="/2020/03/01/salted-fish-turn-over-plan-md/" class="post-meta-item leancloud_visitors" data-flag-title="2020年读书计划" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>458</span>
+              <span>462</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -443,7 +464,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>不知不觉当中，我参加工作已经有一年半的时间（当咸鱼的时间）。虽然工作中有了很多的收获，但是课余时间都拿来玩游戏了，想想就觉得颓废。疫情之后就开始学习计划吧，看书读报写代码。</p>
+          <p>不知不觉当中，我参加工作已经有一年半的时间（当咸鱼的时间）。虽然工作中有了很多的收获，但是课余时间都拿来玩游戏了，想想就觉得颓废。疫情之后，春暖花开，一起看书读报写代码吧，奥利给！</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/01/salted-fish-turn-over-plan-md/#more" rel="contents">
@@ -540,8 +561,10 @@
         </a>
       </div>
       <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
         <span class="site-state-item-count">1</span>
-        <span class="site-state-item-name">分类</span>
+        <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
@@ -628,6 +651,95 @@
 
 
 
+  <script>
+  function leancloudSelector(url) {
+    url = encodeURI(url);
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.getAttribute('id'));
+      var title = visitors.getAttribute('data-flag-title');
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              })
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.getAttribute('id'));
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=Pa19eD2U8gDIjmhWODnYJfFt-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id'     : 'Pa19eD2U8gDIjmhWODnYJfFt-gzGzoHsz',
+            'X-LC-Key'    : 'q0e31pk0btRtGtgQCHuJJB4X',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
 
 
       </div>
