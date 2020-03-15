@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>基于物理的体积云（一）</title>
+      <link href="/2020/03/14/volumetric-cloud-1/"/>
+      <url>/2020/03/14/volumetric-cloud-1/</url>
+      
+        <content type="html"><![CDATA[<p>最近几年Siggraph论文分享中，基本都是来自Guerrilla工作室做的游戏<strong>Horizon: Zero Dawn</strong>，Andrew Schneider分别在2015和2017年分享了他们的技术方案，如何实时渲染真实感体积云？这是<a href="https://youtu.be/5i0DvM84z94" target="_blank" rel="noopener">地平线中的游戏视频</a>，实时动态云的光散射效果十分惊艳。</p><p><img src="http://q6qyzne7s.bkt.clouddn.com/blog/20200314215059.png" width="60%" /></p><a id="more"></a><h5 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h5><ol><li>[Quilez 13]IQ分享了基于raymarching的2D体积云。</li><li>[Simul 13]<strong>Drive Club</strong>游戏用的是TrueSky中间件，它能渲染出逼真的大气效果。</li></ol><p>以上工作存在的问题：</p><ul><li>仅仅能渲染低海拔的层云(stratus cloud),而不能渲染出蓬松的和层状的平积云（stratocumulus cloud）或积云(cumulus cloud)。</li><li>当前的体积方法不能实现特定真实的光照效果。</li><li>实时体积云性能和内存消耗大，但此消耗与渲染质量不成正比。</li></ul><p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cloud_types_en.svg/600px-Cloud_types_en.svg.png" alt="https://en.wikipedia.org/wiki/List_of_cloud_types"></p><p>地平线提出的解决方案包含云建模和云光照，而性能消耗在主机平台上内存占20MB，时间消耗占2ms。</p><h5 id="云的建模"><a href="#云的建模" class="headerlink" title="云的建模"></a>云的建模</h5><h5 id="云的渲染"><a href="#云的渲染" class="headerlink" title="云的渲染"></a>云的渲染</h5>]]></content>
+      
+      
+      <categories>
+          
+          <category> Graphics </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Volumetric Cloud </tag>
+            
+            <tag> GPU Pro 7 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>基于物理的大气散射 (二)</title>
       <link href="/2020/03/08/sky-rendering-2/"/>
       <url>/2020/03/08/sky-rendering-2/</url>

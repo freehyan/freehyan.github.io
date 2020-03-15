@@ -23,15 +23,24 @@
     var CONFIG = {"hostname":"freehyan.github.io","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="鱼戏莲叶东，鱼戏莲叶西，鱼戏莲叶南，鱼戏莲叶北">
-<meta property="og:url" content="http://freehyan.github.io/archives/2020/03/index.html">
+  <meta name="description" content="最近几年Siggraph论文分享中，基本都是来自Guerrilla工作室做的游戏Horizon: Zero Dawn，Andrew Schneider分别在2015和2017年分享了他们的技术方案，如何实时渲染真实感体积云？这是地平线中的游戏视频，实时动态云的光散射效果十分惊艳。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于物理的体积云（一）">
+<meta property="og:url" content="http://freehyan.github.io/2020/03/14/volumetric-cloud-1/index.html">
 <meta property="og:site_name" content="鱼戏莲叶东，鱼戏莲叶西，鱼戏莲叶南，鱼戏莲叶北">
+<meta property="og:description" content="最近几年Siggraph论文分享中，基本都是来自Guerrilla工作室做的游戏Horizon: Zero Dawn，Andrew Schneider分别在2015和2017年分享了他们的技术方案，如何实时渲染真实感体积云？这是地平线中的游戏视频，实时动态云的光散射效果十分惊艳。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200314215059.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cloud_types_en.svg/600px-Cloud_types_en.svg.png">
+<meta property="article:published_time" content="2020-03-14T13:18:47.000Z">
+<meta property="article:modified_time" content="2020-03-15T10:49:34.917Z">
 <meta property="article:author" content="假如我会写代码">
+<meta property="article:tag" content="Volumetric Cloud">
+<meta property="article:tag" content="GPU Pro 7">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200314215059.png">
 
-<link rel="canonical" href="http://freehyan.github.io/archives/2020/03/">
+<link rel="canonical" href="http://freehyan.github.io/2020/03/14/volumetric-cloud-1/">
 
 
 <script id="page-configurations">
@@ -39,11 +48,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false
+    isPost: true
   };
 </script>
 
-  <title>归档 | 鱼戏莲叶东，鱼戏莲叶西，鱼戏莲叶南，鱼戏莲叶北</title>
+  <title>基于物理的体积云（一） | 鱼戏莲叶东，鱼戏莲叶西，鱼戏莲叶南，鱼戏莲叶北</title>
   
 
 
@@ -184,113 +193,190 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 4 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://freehyan.github.io/2020/03/14/volumetric-cloud-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="假如我会写代码">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="鱼戏莲叶东，鱼戏莲叶西，鱼戏莲叶南，鱼戏莲叶北">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于物理的体积云（一）
+        </h1>
+
+        <div class="post-meta">
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-14 21:18:47" itemprop="dateCreated datePublished" datetime="2020-03-14T21:18:47+08:00">2020-03-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-15 18:49:34" itemprop="dateModified" datetime="2020-03-15T18:49:34+08:00">2020-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Graphics/" itemprop="url" rel="index"><span itemprop="name">Graphics</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/03/14/volumetric-cloud-1/" class="post-meta-item leancloud_visitors" data-flag-title="基于物理的体积云（一）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>418</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
+        <p>最近几年Siggraph论文分享中，基本都是来自Guerrilla工作室做的游戏<strong>Horizon: Zero Dawn</strong>，Andrew Schneider分别在2015和2017年分享了他们的技术方案，如何实时渲染真实感体积云？这是<a href="https://youtu.be/5i0DvM84z94" target="_blank" rel="noopener">地平线中的游戏视频</a>，实时动态云的光散射效果十分惊艳。</p>
+<p><img src="http://q6qyzne7s.bkt.clouddn.com/blog/20200314215059.png" width="60%" /></p>
+<a id="more"></a>
+<h5 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h5><ol>
+<li>[Quilez 13]IQ分享了基于raymarching的2D体积云。</li>
+<li>[Simul 13]<strong>Drive Club</strong>游戏用的是TrueSky中间件，它能渲染出逼真的大气效果。</li>
+</ol>
+<p>以上工作存在的问题：</p>
+<ul>
+<li>仅仅能渲染低海拔的层云(stratus cloud),而不能渲染出蓬松的和层状的平积云（stratocumulus cloud）或积云(cumulus cloud)。</li>
+<li>当前的体积方法不能实现特定真实的光照效果。</li>
+<li>实时体积云性能和内存消耗大，但此消耗与渲染质量不成正比。</li>
+</ul>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cloud_types_en.svg/600px-Cloud_types_en.svg.png" alt="https://en.wikipedia.org/wiki/List_of_cloud_types"></p>
+<p>地平线提出的解决方案包含云建模和云光照，而性能消耗在主机平台上内存占20MB，时间消耗占2ms。</p>
+<h5 id="云的建模"><a href="#云的建模" class="headerlink" title="云的建模"></a>云的建模</h5><h5 id="云的渲染"><a href="#云的渲染" class="headerlink" title="云的渲染"></a>云的渲染</h5>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
+      
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-14T21:18:47+08:00"
-              content="2020-03-14">
-          03-14
-        </time>
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="假如我会写代码 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="假如我会写代码 支付宝">
+        <p>支付宝</p>
       </div>
 
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/03/14/volumetric-cloud-1/" itemprop="url">
-            <span itemprop="name">基于物理的体积云（一）</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-08T21:20:56+08:00"
-              content="2020-03-08">
-          03-08
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/03/08/sky-rendering-2/" itemprop="url">
-            <span itemprop="name">基于物理的大气散射 (二)</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-05T21:20:01+08:00"
-              content="2020-03-05">
-          03-05
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/03/05/sky-rendering-1/" itemprop="url">
-            <span itemprop="name">基于物理的大气散射 (一)</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-01T21:59:37+08:00"
-              content="2020-03-01">
-          03-01
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/03/01/salted-fish-turn-over-plan-md/" itemprop="url">
-            <span itemprop="name">2020年读书计划</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-
-    </div>
   </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>假如我会写代码
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://freehyan.github.io/2020/03/14/volumetric-cloud-1/" title="基于物理的体积云（一）">http://freehyan.github.io/2020/03/14/volumetric-cloud-1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <!-- <a href="/tags/Volumetric-Cloud/" rel="tag"># Volumetric Cloud</a> -->
+            <a href="/tags/Volumetric-Cloud/" rel="tag"><i class="fa fa-tags"></i> Volumetric Cloud</a>
+              <!-- <a href="/tags/GPU-Pro-7/" rel="tag"># GPU Pro 7</a> -->
+            <a href="/tags/GPU-Pro-7/" rel="tag"><i class="fa fa-tags"></i> GPU Pro 7</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/08/sky-rendering-2/" rel="prev" title="基于物理的大气散射 (二)">
+      <i class="fa fa-chevron-left"></i> 基于物理的大气散射 (二)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
   
   
   
 
-  
-
+  </div>
 
 
           </div>
           
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzk5MC8xMDUyNQ=="></div>
+  </div>
+  
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -337,6 +423,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#相关工作"><span class="nav-number">1.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#云的建模"><span class="nav-number">2.</span> <span class="nav-text">云的建模</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#云的渲染"><span class="nav-number">3.</span> <span class="nav-text">云的渲染</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -592,9 +679,71 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
 
 
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/unitychan.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
