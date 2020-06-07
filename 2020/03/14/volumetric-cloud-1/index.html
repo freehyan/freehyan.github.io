@@ -23,22 +23,22 @@
     var CONFIG = {"hostname":"freehyan.github.io","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="最近几年Siggraph论文分享中，基本都是来自Guerrilla工作室做的游戏Horizon: Zero Dawn，Andrew Schneider分别在2015和2017年分享了他们的技术方案，如何实时渲染真实感体积云？这是地平线中的游戏视频，实时动态云的光散射效果十分惊艳。">
+  <meta name="description" content="最近几年Siggraph论文关于体积云的分享，基本都是来自Guerrilla工作室做的游戏Horizon: Zero Dawn，Andrew Schneider分别在2015和2017年分享了他们的技术方案—如何实时渲染真实感体积云？这是地平线中的游戏视频，实时动态云的光散射效果十分惊艳。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于物理的体积云（一）">
 <meta property="og:url" content="http://freehyan.github.io/2020/03/14/volumetric-cloud-1/index.html">
 <meta property="og:site_name" content="鱼戏莲叶东，鱼戏莲叶西，鱼戏莲叶南，鱼戏莲叶北">
-<meta property="og:description" content="最近几年Siggraph论文分享中，基本都是来自Guerrilla工作室做的游戏Horizon: Zero Dawn，Andrew Schneider分别在2015和2017年分享了他们的技术方案，如何实时渲染真实感体积云？这是地平线中的游戏视频，实时动态云的光散射效果十分惊艳。">
+<meta property="og:description" content="最近几年Siggraph论文关于体积云的分享，基本都是来自Guerrilla工作室做的游戏Horizon: Zero Dawn，Andrew Schneider分别在2015和2017年分享了他们的技术方案—如何实时渲染真实感体积云？这是地平线中的游戏视频，实时动态云的光散射效果十分惊艳。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200314215059.png">
+<meta property="og:image" content="https://i.loli.net/2020/06/07/IiHC69kt4JMTuOW.png">
 <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Cloud_types_en.svg/600px-Cloud_types_en.svg.png">
 <meta property="article:published_time" content="2020-03-14T13:18:47.000Z">
-<meta property="article:modified_time" content="2020-03-15T10:49:34.917Z">
+<meta property="article:modified_time" content="2020-06-07T07:56:01.065Z">
 <meta property="article:author" content="假如我会写代码">
 <meta property="article:tag" content="Volumetric Cloud">
 <meta property="article:tag" content="GPU Pro 7">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200314215059.png">
+<meta name="twitter:image" content="https://i.loli.net/2020/06/07/IiHC69kt4JMTuOW.png">
 
 <link rel="canonical" href="http://freehyan.github.io/2020/03/14/volumetric-cloud-1/">
 
@@ -229,7 +229,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-15 18:49:34" itemprop="dateModified" datetime="2020-03-15T18:49:34+08:00">2020-03-15</time>
+                <time title="修改时间：2020-06-07 15:56:01" itemprop="dateModified" datetime="2020-06-07T15:56:01+08:00">2020-06-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -261,7 +261,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>418</span>
+              <span>423</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -280,8 +280,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>最近几年Siggraph论文分享中，基本都是来自Guerrilla工作室做的游戏<strong>Horizon: Zero Dawn</strong>，Andrew Schneider分别在2015和2017年分享了他们的技术方案，如何实时渲染真实感体积云？这是<a href="https://youtu.be/5i0DvM84z94" target="_blank" rel="noopener">地平线中的游戏视频</a>，实时动态云的光散射效果十分惊艳。</p>
-<p><img src="http://q6qyzne7s.bkt.clouddn.com/blog/20200314215059.png" width="60%" /></p>
+        <p>最近几年Siggraph论文关于体积云的分享，基本都是来自Guerrilla工作室做的游戏<strong>Horizon: Zero Dawn</strong>，Andrew Schneider分别在2015和2017年分享了他们的技术方案—如何实时渲染真实感体积云？这是<a href="https://youtu.be/5i0DvM84z94" target="_blank" rel="noopener">地平线中的游戏视频</a>，实时动态云的光散射效果十分惊艳。</p>
+<p><img src="https://i.loli.net/2020/06/07/IiHC69kt4JMTuOW.png" width="60%" /></p>
 <a id="more"></a>
 <h5 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h5><ol>
 <li>[Quilez 13]IQ分享了基于raymarching的2D体积云。</li>
@@ -302,6 +302,12 @@
     
     
       
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\2020\03\15\volumetric-cloud-2\" rel="bookmark">基于物理的体积云（二）</a></div>
+    </li>
+  </ul>
 
         <div class="reward-container">
   <div></div>
@@ -358,7 +364,10 @@
     <a href="/2020/03/08/sky-rendering-2/" rel="prev" title="基于物理的大气散射 (二)">
       <i class="fa fa-chevron-left"></i> 基于物理的大气散射 (二)
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/15/volumetric-cloud-2/" rel="next" title="基于物理的体积云（二）">
+      基于物理的体积云（二） <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -439,7 +448,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -452,7 +461,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

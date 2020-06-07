@@ -30,15 +30,15 @@
 <meta property="og:site_name" content="鱼戏莲叶东，鱼戏莲叶西，鱼戏莲叶南，鱼戏莲叶北">
 <meta property="og:description" content="在上一篇文章中，我们根据光照理论传输方程建立了大气散射的物理模型，并给出了数学公式。接下来这篇文章将解释如何求解大气散射积分，以及用代码实现大气散射效果。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200310223404.png">
-<meta property="og:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200311232302.png">
-<meta property="og:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200311231855.png">
+<meta property="og:image" content="https://i.loli.net/2020/06/07/mnrEIPkJswhefDS.png">
+<meta property="og:image" content="https://i.loli.net/2020/06/07/iYlXWVdeoSIvRr4.png">
+<meta property="og:image" content="https://i.loli.net/2020/06/07/xEazhg3yVn2ifCQ.png">
 <meta property="article:published_time" content="2020-03-08T13:20:56.000Z">
-<meta property="article:modified_time" content="2020-03-14T03:00:50.048Z">
+<meta property="article:modified_time" content="2020-06-07T07:57:22.094Z">
 <meta property="article:author" content="假如我会写代码">
 <meta property="article:tag" content="Atmospheric Scattering">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://q6qyzne7s.bkt.clouddn.com/blog/20200310223404.png">
+<meta name="twitter:image" content="https://i.loli.net/2020/06/07/mnrEIPkJswhefDS.png">
 
 <link rel="canonical" href="http://freehyan.github.io/2020/03/08/sky-rendering-2/">
 
@@ -229,7 +229,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-14 11:00:50" itemprop="dateModified" datetime="2020-03-14T11:00:50+08:00">2020-03-14</time>
+                <time title="修改时间：2020-06-07 15:57:22" itemprop="dateModified" datetime="2020-06-07T15:57:22+08:00">2020-06-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -281,7 +281,7 @@
 
       
         <p>在上一篇文章中，我们根据光照理论传输方程建立了大气散射的物理模型，并给出了数学公式。接下来这篇文章将解释如何求解大气散射积分，以及用代码实现大气散射效果。</p>
-<p><img src="http://q6qyzne7s.bkt.clouddn.com/blog/20200310223404.png" alt="Precomputed Atmospheric Scattering"></p>
+<p><img src="https://i.loli.net/2020/06/07/mnrEIPkJswhefDS.png" alt="Precomputed Atmospheric Scattering"></p>
 <a id="more"></a>
 <p>[BN08]的论文《Precomputed Atmospheric Scattering》表示可在任意位置实时渲染大气散射效果。论文提出了预结算散射效果放入4D纹理中，在着色器中只需要查找表的消耗来得到当前散射结果，从而提高了渲染效率。</p>
 <p>本文接下来也采用预结算的方法先保存散射方程需要的数据，但是不会采用4D查找表的方式，只用采用2D纹理保存即可。</p>
@@ -310,7 +310,7 @@
 <h5 id="计算当前点的内散射"><a href="#计算当前点的内散射" class="headerlink" title="计算当前点的内散射"></a>计算当前点的内散射</h5><p>天空的大气散射除了$T_{CP}$和$T_{AP}$的衰减函数，我们还需要求解当前点的内散射函数。其中与散射系数，密度函数，以及相位函数有关。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void ComputeLocalInscattering(float2 localDensity, float2 densityPA, float2 densityCP, out float3 localInscatterR, out float3 localInscatterM)</span><br><span class="line">&#123;</span><br><span class="line">    float2 densityCPA &#x3D; densityCP + densityPA;</span><br><span class="line"></span><br><span class="line">    float3 Tr &#x3D; densityCPA.x * _ExtinctionR; &#x2F;&#x2F;计算瑞利和米散射粒子的光学深度</span><br><span class="line">    float3 Tm &#x3D; densityCPA.y * _ExtinctionM;</span><br><span class="line"></span><br><span class="line">    float3 extinction &#x3D; exp(-(Tr + Tm));    &#x2F;&#x2F;当前积分点的消光值</span><br><span class="line"></span><br><span class="line">    localInscatterR &#x3D; localDensity.x * extinction;</span><br><span class="line">    localInscatterM &#x3D; localDensity.y * extinction;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>相位函数简单易懂，与波长有关的瑞利散射相位函数，近似均匀向四周发散；与波长无关的米散射相位函数，大概率朝向光源行径方向散射。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//-----------------------------------------------------------------------------------------</span></span><br><span class="line"><span class="comment">// ApplyPhaseFunction[EG2008]</span></span><br><span class="line"><span class="comment">// 瑞利散射和米散射的相位函数</span></span><br><span class="line"><span class="comment">//-----------------------------------------------------------------------------------------</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ApplyPhaseFunction</span><span class="params">(inout float3 scatterR, inout float3 scatterM, <span class="keyword">float</span> cosAngle)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// r</span></span><br><span class="line">    <span class="keyword">float</span> phase = (<span class="number">3.0</span> / (<span class="number">16.0</span> * PI)) * (<span class="number">1</span> + (cosAngle * cosAngle));</span><br><span class="line">    scatterR *= phase;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// m</span></span><br><span class="line">    <span class="keyword">float</span> g = _MieG;</span><br><span class="line">    <span class="keyword">float</span> g2 = g * g;</span><br><span class="line">    phase = (<span class="number">1.0</span> / (<span class="number">4.0</span> * PI)) * ((<span class="number">3.0</span> * (<span class="number">1.0</span> - g2)) / (<span class="number">2.0</span> * (<span class="number">2.0</span> + g2))) * ((<span class="number">1</span> + cosAngle * cosAngle) / (<span class="built_in">pow</span>((<span class="number">1</span> + g2 - <span class="number">2</span> * g * cosAngle), <span class="number">3.0</span> / <span class="number">2.0</span>)));</span><br><span class="line">    scatterM *= phase;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h5 id="渲染结果"><a href="#渲染结果" class="headerlink" title="渲染结果"></a>渲染结果</h5><p><img src="http://q6qyzne7s.bkt.clouddn.com/blog/20200311232302.png" alt="相机高度5600米"><br><img src="http://q6qyzne7s.bkt.clouddn.com/blog/20200311231855.png" alt="夕阳"></p>
+<h5 id="渲染结果"><a href="#渲染结果" class="headerlink" title="渲染结果"></a>渲染结果</h5><p><img src="https://i.loli.net/2020/06/07/iYlXWVdeoSIvRr4.png" alt="相机高度5600米"><br><img src="https://i.loli.net/2020/06/07/xEazhg3yVn2ifCQ.png" alt="夕阳"></p>
 <p>基于物理的太空颜色就是大气层的内散射积分和，求得内散射结果也就是我们的天空背景。而我们的视线路径上的光学深度衰减是密度函数与消光系数乘积结果。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[loop]</span><br><span class="line">   <span class="keyword">for</span> (<span class="keyword">float</span> s = <span class="number">1.0</span>; s &lt; sampleCount; s += <span class="number">1</span>)</span><br><span class="line">   &#123;</span><br><span class="line">       float3 p = rayStart + <span class="built_in">step</span> * s;</span><br><span class="line"></span><br><span class="line">       GetAtmosphereDensity(p, planetCenter, lightDir, localDensity, densityPA);</span><br><span class="line">       densityCP += (localDensity + prevLocalDensity) * (stepSize / <span class="number">2.0</span>);</span><br><span class="line"></span><br><span class="line">       prevLocalDensity = localDensity;</span><br><span class="line"></span><br><span class="line">       float3 localInscatterR, localInscatterM;</span><br><span class="line">       ComputeLocalInscattering(localDensity, densityPA, densityCP, localInscatterR, localInscatterM);</span><br><span class="line">	</span><br><span class="line">       scatterR += (localInscatterR + prevLocalInscatterR) * (stepSize / <span class="number">2.0</span>);</span><br><span class="line">       scatterM += (localInscatterM + prevLocalInscatterM) * (stepSize / <span class="number">2.0</span>);</span><br><span class="line"></span><br><span class="line">       prevLocalInscatterR = localInscatterR;</span><br><span class="line">       prevLocalInscatterM = localInscatterM;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   float3 lightExtinction = <span class="built_in">exp</span>(-(densityCP.x * _ExtinctionR + densityCP.y * _ExtinctionM));</span><br></pre></td></tr></table></figure>
 <p>大气的消光系数，可用来做大气雾效果，以后的文章将会讲解。</p>
@@ -469,7 +469,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -482,7 +482,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
